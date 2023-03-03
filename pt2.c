@@ -353,7 +353,7 @@ void moveCard(node **from, node **to)
     insertNode(to, node->card);
     free(node);
 }
-
+å
 void printBoard(node **piles)
 {
 
