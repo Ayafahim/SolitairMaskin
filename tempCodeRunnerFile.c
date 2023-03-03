@@ -1,4 +1,2 @@
-    card *card = shift(pile);
-//     insert(pile, card, idx);
-//   }
-// }
+printf("moving cards...\n");
+    // moveCard(&piles[0], &piles[1]);
