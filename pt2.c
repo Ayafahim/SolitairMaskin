@@ -30,36 +30,43 @@ int countNodes(const struct node *list);
 node *removeFirstNode(node **head);
 void insertRandomPosition(node **head, node *newNode);
 void shuffleList(node **head);
-void dealCards(node **deck, node **piles);
+void dealCards(node **deck, node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7);
+void printBoard(node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7);
+// void dealCards(node **deck, node **piles);<
 void moveCard(node **from, node **to);
-void printBoard(node **piles);
+void printNodeBoard(node **column, int i);
+
+node **C1 = NULL;
+node **C2 = NULL;
+node **C3 = NULL;
+node **C4 = NULL;
+node **C5 = NULL;
+node **C6 = NULL;
+node **C7 = NULL;
+node **F1 = NULL;
+node **F2 = NULL;
+node **F3 = NULL;
+node **F4 = NULL;
 
 int main()
 {
     node *head = NULL;
     createDeck(&head);
-    //printDeck(head);
+    // printDeck(head);
     countNodes(head);
     printf("Shuffeling...\n");
     shuffleList(&head);
-    //printDeck(head);
+    // printDeck(head);
     printf("Dealing cards...\n");
-    node *piles[7] = {NULL};
-    dealCards(&head, piles);
-     for (int i = 0; i < 7; i++)
-    {
-        printf("Pile %d:\n", i + 1);
-        printDeck(piles[i]);
-        printf("\n");
-    }
-     printf("moving cards...\n");
-     moveCard(&piles[5], &piles[1]);
-       for (int i = 0; i < 7; i++)
-    {
-        printf("Pile %d:\n", i + 1);
-        printDeck(piles[i]);
-        printf("\n");
-    }
+    //  node *piles[7] = {NULL};
+    //  dealCards(&head, piles);
+    dealCards(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
+    printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7);
+    printf("\nmoving cards...\n");
+    // moveCard(&piles[0], &piles[1]);
+    moveCard(&C1, &C6);
+    printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7);
+    printf("\n");
 
     return 0;
 }
@@ -185,7 +192,7 @@ void printDeck(const struct node *list)
     t = list;
     if (t == NULL)
     { // if the list is empty, print a message indicating that
-        printf("list is empty");
+        printf("list is empty\n");
     }
     else
     {
@@ -208,7 +215,7 @@ int countNodes(const struct node *list)
         t = t->next;
     }
 
-    printf("The amount of nodes is %d\n", count);
+    // printf("The amount of nodes is %d\n", count);
     return count;
 }
 
@@ -281,7 +288,7 @@ void shuffleList(node **head)
     *head = shuffledList;
 }
 
-void dealCards(node **deck, node **piles)
+void dealCards(node **deck, node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7)
 {
     int i, j;
     int pileSizes[] = {1, 6, 7, 8, 9, 10, 11};
@@ -297,30 +304,35 @@ void dealCards(node **deck, node **piles)
             {
             case 1:
                 node->card->revealed = true;
+                insertNode(C1, node->card);
                 break;
             case 6:
                 if (j > 0)
                 {
                     node->card->revealed = true;
                 }
+                insertNode(C2, node->card);
                 break;
             case 7:
                 if (j > 1)
                 {
                     node->card->revealed = true;
                 }
+                insertNode(C3, node->card);
                 break;
             case 8:
                 if (j > 2)
                 {
                     node->card->revealed = true;
                 }
+                insertNode(C4, node->card);
                 break;
             case 9:
                 if (j > 3)
                 {
                     node->card->revealed = true;
                 }
+                insertNode(C5, node->card);
                 break;
 
             case 10:
@@ -328,34 +340,112 @@ void dealCards(node **deck, node **piles)
                 {
                     node->card->revealed = true;
                 }
+                insertNode(C6, node->card);
                 break;
             case 11:
                 if (j > 5)
                 {
                     node->card->revealed = true;
                 }
+                insertNode(C7, node->card);
                 break;
 
             default:
                 break;
             }
-            insertNode(&piles[i], node->card);
-            free(node);
             cardsDealt++;
         }
     }
 }
 
-
 void moveCard(node **from, node **to)
 {
     node *node = removeFirstNode(from);
-    insertNode(to, node->card);
-    free(node);
-}
-å
-void printBoard(node **piles)
-{
 
-    
+    if (node->card->revealed == false)
+    {
+        printf("Cannot move card that is not revealed\n");
+    }
+    else if (node->card->revealed == true)
+    {
+        insertNode(to, node->card);
+        free(node);
+    }
+}
+
+void printBoard(node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7)
+{
+    node *columns[7] = {*C1, *C2, *C3, *C4, *C5, *C6, *C7};
+    char *column_names[7] = {"C1", "C2", "C3", "C4", "C5", "C6", "C7"};
+    int max_len = 0;
+    for (int i = 0; i < 7; i++)
+    {
+        int len = countNodes(columns[i]);
+        if (len > max_len)
+        {
+            max_len = len;
+        }
+    }
+
+    // Print column names
+    for (int i = 0; i < 7; i++)
+    {
+        printf("%s\t", column_names[i]);
+    }
+    printf("\n");
+    printf("------------------------------------------------------------\n");
+
+    // Print nodes in each column
+    for (int i = 0; i < max_len; i++)
+    {
+        for (int j = 0; j < 7; j++)
+        {
+            if (i < countNodes(columns[j]))
+            {
+                printNodeBoard(&columns[j], i);
+                printf("\t");
+            }
+            else
+            {
+                printf("\t");
+            }
+        }
+        printf("\n");
+    }
+}
+
+void printNodeBoard(node **column, int i)
+{
+    if (*column == NULL)
+    {
+        printf("[]");
+    }
+    else
+    {
+        node *curr = *column;
+        for (int j = 0; j < i; j++)
+        {
+            if (curr == NULL)
+            {
+                printf("[]");
+                return;
+            }
+            curr = curr->next;
+        }
+        if (curr == NULL || curr->card == NULL)
+        {
+            printf("[]");
+        }
+        else
+        {
+            if (curr->card->revealed == false)
+            {
+                printf("[]");
+            }
+            else
+            {
+                printf("%c%c", curr->card->rank, curr->card->suit);
+            }
+        }
+    }
 }
