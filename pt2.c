@@ -22,10 +22,20 @@ typedef struct node
     struct node *next;
 } node;
 
+typedef struct cardLocation
+{
+    node *foundNode;
+    char location;
+} cardLocation;
+
+void startUp();
+bool play();
+void saveDeck(node *head, char *filename);
+void setAllCardsRevealed(node *head, bool revealed);
 struct card *createNewCard(char suit, char rank);
 struct node *createNewNode(struct card *card);
 void insertNode(node **headRef, card *card);
-void createDeck(node **deck);
+void createDeck(node **deck, char *filename);
 void printNode(const struct node *node);
 void printList(const struct node *list);
 int countNodes(const struct node *list);
@@ -33,13 +43,19 @@ node *removeFirstNode(node **head);
 void insertRandomPosition(node **head, node *newNode);
 void shuffleList(node **head);
 void dealCards(node **deck, node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7);
-void printBoard(node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7);
-void moveCard(node *c1, node *c2, node *c3, node *c4, node *c5, node *c6, node *c7, const char *cardString, const char *destString);
+void setDeck(node **deck, node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7);
+void insertListBack(node **head, node *newNode);
+void returnCardsToDeck(node **deck, node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7);
+void printBoard(node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7, node **F1, node **F2, node **F3, node **F4);
+void moveCard(node **c1, node **c2, node **c3, node **c4, node **c5, node **c6, node **c7, const char *cardString, const char *destString);
 void printNodeBoard(node **column, int i);
 node *getLastNode(node *head);
-node *findCard(const char *cardString, node *C1, node *C2, node *C3, node *C4, node *C5, node *C6, node *C7);
+void revealCard(node *C1, node *C2, node *C3, node *C4, node *C5, node *C6, node *C7);
+cardLocation findCard(const char *cardString, node *C1, node *C2, node *C3, node *C4, node *C5, node *C6, node *C7);
 void extractStrings(char *left, char *right);
-node *findAndRemoveCard(node *c1, node *c2, node *c3, node *c4, node *c5, node *c6, node *c7, const char *cardString);
+node *findAndRemoveCard(node **c1, node **c2, node **c3, node **c4, node **c5, node **c6, node **c7, const char *cardString);
+const char *parseCard(const struct node *cardNode);
+void initializeRandom();
 
 node *C1 = NULL;
 node *C2 = NULL;
@@ -52,36 +68,222 @@ node *F1 = NULL;
 node *F2 = NULL;
 node *F3 = NULL;
 node *F4 = NULL;
+node *head = NULL;
+bool gameWon = false;
+bool playPhase = false;
+bool startPhase = true;
+char left[256] = {'\0'};
+char right[256] = {'\0'};
 
 int main()
 {
-    node *head = NULL;
-    node *moveHead = NULL;
-    char left[256] = {'\0'};
-    char right[256] = {'\0'};
-    createDeck(&head);
-    // printList(head);
-    countNodes(head);
-    printf("Shuffeling...\n");
-    shuffleList(&head);
-    // printList(head);
-    printf("Dealing cards...\n");
-    //  node *piles[7] = {NULL};
-    //  dealCards(&head, piles);
-    dealCards(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
-    printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7);
-    printf("\nmoving cards...\n");
-    // moveCard(&piles[0], &piles[1]);
-    // moveCard(&C1, &C6);
-    printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7);
-    getLastNode(C2);
-    printf("Type in a card to find: ");
-    extractStrings(left, right);
+
+    startUp();
+
+    // createDeck(&head, NULL);
+    // countNodes(head);
+    // printf("Dealing cards...\n");
+    // setDeck(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
+    // printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7, &F1, &F2, &F3, &F4);
+
+    // returnCardsToDeck(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
+    // printf("Shuffeling...\n");
+    // int numShuffles = rand() % 91 + 10;
+    // for (int i = 0; i < numShuffles; i++)
+    // {
+    //     shuffleList(&head);
+    // }
+    // dealCards(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
+
+    // printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7, &F1, &F2, &F3, &F4);
+    // printf("Type in a card move: ");
+    // extractStrings(left, right);
+    // printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7, &F1, &F2, &F3, &F4);
     // printf("Left: %s\nRight: %s\n", left, right);
-    // findCard(left, C1, C2, C3, C4, C5, C6, C7);
-    moveCard(C1, C2, C3, C4, C5, C6, C7, left, right);
-    printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7);
+    // moveCard(&C1, &C2, &C3, &C4, &C5, &C6, &C7, left, right);
+    // printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7, &F1, &F2, &F3, &F4);
+    // printf("Type in a card move: ");
+    // extractStrings(left, right);
+    // printf("Left: %s\nRight: %s\n", left, right);
+    // moveCard(&C1, &C2, &C3, &C4, &C5, &C6, &C7, left, right);
+    // printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7, &F1, &F2, &F3, &F4);
     return 0;
+}
+
+void startUp()
+{
+    char input[256];
+    char command[3], filename[256];
+    strcpy(filename, "cardDeck.txt");
+    while (startPhase)
+    {
+        printf("Enter a command: ");
+        fgets(input, 256, stdin);
+        sscanf(input, "%s %s", command, filename);
+
+        // convert command to uppercase
+        for (int i = 0; i < strlen(command); i++)
+        {
+            command[i] = toupper(command[i]);
+        }
+
+        switch (command[0])
+        {
+        case 'Q':
+            if (command[1] == 'Q')
+            {
+                // Quit game
+                startPhase = false;
+                break;
+            }
+            // else fallthrough
+        case 'P':
+
+            // Perform action for command P
+            if (head == NULL)
+            {
+                printf("please load a deck first\n");
+            }
+            else
+            {
+                setAllCardsRevealed(head, false);
+                initializeRandom();
+                printf("Shuffeling...\n");
+                int numShuffles = rand() % 91 + 10;
+                for (int i = 0; i < numShuffles; i++)
+                {
+                    shuffleList(&head);
+                }
+                dealCards(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
+                printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7, &F1, &F2, &F3, &F4);
+                playPhase = true;
+                while (playPhase)
+                {
+                    playPhase = play();
+                }
+            }
+
+            break;
+        case 'L':
+            if (command[1] == 'D')
+            {
+                // Load deck from file
+                if (head == NULL && C1 != NULL && C2 != NULL && C3 != NULL && C4 != NULL && C5 != NULL && C6 != NULL && C7 != NULL)
+                {
+                    returnCardsToDeck(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
+                    head = NULL;
+                }
+                printf("Loading deck from file: %s\n", filename);
+                createDeck(&head, filename);
+                setDeck(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
+                printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7, &F1, &F2, &F3, &F4);
+                returnCardsToDeck(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
+                break;
+            }
+            // else fallthrough
+        case 'S':
+            if (command[1] == 'W')
+            {
+                // Show cards in deck
+
+                setAllCardsRevealed(head, true);
+                setDeck(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
+                printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7, &F1, &F2, &F3, &F4);
+                returnCardsToDeck(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
+                break;
+            }
+            else if (command[1] == 'D')
+            {
+                // Save deck to file
+                printf("Saving deck to file: %s\n", filename);
+                returnCardsToDeck(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
+                saveDeck(head, filename);
+                break;
+            }
+            else if (command[1] == 'R')
+            {
+                // Shuffle deck
+                shuffleList(&head);
+                setDeck(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
+                printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7, &F1, &F2, &F3, &F4);
+                returnCardsToDeck(&head, &C1, &C2, &C3, &C4, &C5, &C6, &C7);
+                break;
+            }
+            // else fallthrough
+        default:
+            printf("Invalid command\n");
+        }
+    }
+}
+
+bool play()
+{
+    char buffer[256];
+    char left[256], right[256];
+
+    printf("Type in a card move or command: ");
+    if (fscanf(stdin, "%255s", buffer) == 1)
+    {
+        // Consume the newline character
+        getchar();
+
+        char *arrow = strstr(buffer, "->");
+        if (arrow != NULL)
+        {
+            *arrow = '\0';
+            strcpy(left, buffer);
+            strcpy(right, arrow + 2);
+            moveCard(&C1, &C2, &C3, &C4, &C5, &C6, &C7, left, right);
+            printf("Checking for freed cards...\n"); //debugging
+            revealCard(C1, C2, C3, C4, C5, C6, C7);
+            printBoard(&C1, &C2, &C3, &C4, &C5, &C6, &C7, &F1, &F2, &F3, &F4);
+        }
+        else if (strcasecmp(buffer, "Q") == 0)
+        {
+            // Quit game
+            return false;
+        }
+        else
+        {
+            printf("Invalid command\n");
+        }
+    }
+
+    return true;
+}
+
+void initializeRandom()
+{
+    srand(time(NULL));
+}
+
+void setAllCardsRevealed(node *head, bool revealed)
+{
+    node *curr = head;
+    while (curr != NULL)
+    {
+        curr->card->revealed = revealed;
+        curr = curr->next;
+    }
+}
+
+void saveDeck(node *head, char *filename)
+{
+    FILE *fp = fopen(filename, "w");
+    if (fp == NULL)
+    {
+        printf("Error opening file %s\n", filename);
+        return;
+    }
+
+    node *curr = head;
+    while (curr != NULL)
+    {
+        fprintf(fp, "%c%c\n", curr->card->rank, curr->card->suit);
+        curr = curr->next;
+    }
+
+    fclose(fp);
 }
 
 struct card *createNewCard(char suit, char rank)
@@ -98,6 +300,7 @@ struct node *createNewNode(struct card *card)
     struct node *new_node = (struct node *)malloc(sizeof(struct node));
     new_node->card = card;
     new_node->next = NULL;
+    new_node->prev = NULL;
     return new_node;
 };
 
@@ -118,12 +321,18 @@ void insertNode(node **headRef, card *card)
     newNode->prev = temp; // assign the previous node for the new node
 }
 
-void createDeck(node **deck)
+void createDeck(node **deck, char *filename)
 {
     card *curr_card, *prev_card;
-
     FILE *fp;
-    fp = fopen("cardDeck.txt", "r");
+    if (filename == NULL)
+    {
+        fp = fopen("cardDeck.txt", "r");
+    }
+    else
+    {
+        fp = fopen(filename, "r");
+    }
 
     if (fp == NULL)
     {
@@ -139,28 +348,11 @@ void createDeck(node **deck)
     {
         char line[4];
         fgets(line, 4, fp);
-        if (strlen(line) == 2)
+        if (strlen(line) == 2 || strlen(line) == 3)
         {
-            curr_card = (card *)malloc(sizeof(card));
-            curr_card->suit = line[0];
-            curr_card->rank = line[1];
-            if (*deck == NULL)
-            {
-                *deck = createNewNode(curr_card);
-                prev_card = curr_card;
-            }
-            else
-            {
-                insertNode(deck, curr_card);
-                prev_card = curr_card;
-            }
-        }
-        else if (strlen(line) == 3)
-        {
-            line[2] = '\0';
-            curr_card = (card *)malloc(sizeof(card));
-            curr_card->suit = line[0];
-            curr_card->rank = line[1];
+            line[strlen(line) - 1] = '\0';
+            curr_card = createNewCard(line[1], line[0]);
+
             if (*deck == NULL)
             {
                 *deck = createNewNode(curr_card);
@@ -179,24 +371,8 @@ void createDeck(node **deck)
 
 void printNode(const struct node *node)
 {
-    if (node == NULL)
-    {
-        printf("Node is null\n");
-    }
-    else
-    {
-        if (node->card->revealed == false)
-        {
-            printf("[]\n");
-        }
-        else
-        {
-
-            printf("%c%c\n",
-                   node->card->rank,
-                   node->card->suit);
-        }
-    }
+    const char *card = parseCard(node);
+    printf("%s\n", card);
 }
 
 void printList(const struct node *list)
@@ -235,15 +411,62 @@ int countNodes(const struct node *list)
 
 node *getLastNode(node *head)
 {
-    node *current = head;
-    while (current->next != NULL)
+    if (head == NULL)
     {
-        current = current->next;
+        // list is empty
+        return NULL;
     }
-    printf("Last node is: ");
-    printNode(current);
-    return current;
+    else
+    {
+        node *current = head;
+        while (current->next != NULL)
+        {
+            current = current->next;
+        }
+        return current;
+    }
 }
+
+void revealCard(node *C1, node *C2, node *C3, node *C4, node *C5, node *C6, node *C7)
+{
+    node *lastNode;
+
+    for (int i = 1; i <= 7; i++)
+    {
+        switch (i)
+        {
+        case 1:
+            lastNode = getLastNode(C1);
+            break;
+        case 2:
+            lastNode = getLastNode(C2);
+            break;
+        case 3:
+            lastNode = getLastNode(C3);
+            break;
+        case 4:
+            lastNode = getLastNode(C4);
+            break;
+        case 5:
+            lastNode = getLastNode(C5);
+            break;
+        case 6:
+            lastNode = getLastNode(C6);
+            break;
+        case 7:
+            lastNode = getLastNode(C7);
+            break;
+        default:
+            break;
+        }
+
+        if (lastNode != NULL && lastNode->card->revealed == false)
+        {
+            lastNode->card->revealed = true;
+        }
+    }
+}
+
 
 node *removeFirstNode(node **head)
 {
@@ -384,10 +607,108 @@ void dealCards(node **deck, node **C1, node **C2, node **C3, node **C4, node **C
     }
 }
 
-node *findAndRemoveCard(node *c1, node *c2, node *c3, node *c4, node *c5, node *c6, node *c7, const char *cardString)
+void setDeck(node **deck, node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7)
+{
+    int i, j;
+    int pileSizes[] = {1, 6, 7, 8, 9, 10, 11};
+    int pileIndex = 0;
+    int cardsDealt = 0;
+    int currentColumn = 1;
+
+    for (i = 0; i < 7; i++)
+    {
+        for (j = 0; j < pileSizes[i]; j++)
+        {
+            node *node = removeFirstNode(deck);
+            switch (currentColumn)
+            {
+            case 1:
+                insertNode(C1, node->card);
+                break;
+            case 2:
+                insertNode(C2, node->card);
+                break;
+            case 3:
+                insertNode(C3, node->card);
+                break;
+            case 4:
+                insertNode(C4, node->card);
+                break;
+            case 5:
+                insertNode(C5, node->card);
+                break;
+            case 6:
+                insertNode(C6, node->card);
+                break;
+            case 7:
+                insertNode(C7, node->card);
+                break;
+            default:
+                break;
+            }
+            cardsDealt++;
+
+            // Increment the current column and reset to 1 if it exceeds 7
+            currentColumn++;
+            if (currentColumn > 7)
+            {
+                currentColumn = 1;
+            }
+        }
+    }
+}
+
+void returnCardsToDeck(node **deck, node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7)
+{
+    // Iterate through each column and insert the cards back into the deck
+    insertListBack(deck, *C1);
+    *C1 = NULL;
+
+    insertListBack(deck, *C2);
+    *C2 = NULL;
+
+    insertListBack(deck, *C3);
+    *C3 = NULL;
+
+    insertListBack(deck, *C4);
+    *C4 = NULL;
+
+    insertListBack(deck, *C5);
+    *C5 = NULL;
+
+    insertListBack(deck, *C6);
+    *C6 = NULL;
+
+    insertListBack(deck, *C7);
+    *C7 = NULL;
+}
+
+void insertListBack(node **head, node *newNode)
+{
+    // If the list is empty, make the new node the head
+    if (*head == NULL)
+    {
+        *head = newNode;
+        return;
+    }
+
+    // Traverse to the end of the list
+    node *currentNode = *head;
+    while (currentNode->next != NULL)
+    {
+        currentNode = currentNode->next;
+    }
+
+    // Insert the new node at the end of the list
+    currentNode->next = newNode;
+    newNode->prev = currentNode;
+}
+
+node *findAndRemoveCard(node **c1, node **c2, node **c3, node **c4, node **c5, node **c6, node **c7, const char *cardString)
 {
     // Call findCard() to search for the card
-    node *foundNode = findCard(cardString, c1, c2, c3, c4, c5, c6, c7);
+    cardLocation cardLocation = findCard(cardString, *c1, *c2, *c3, *c4, *c5, *c6, *c7);
+    node *foundNode = cardLocation.foundNode;
 
     if (foundNode != NULL)
     {
@@ -400,25 +721,49 @@ node *findAndRemoveCard(node *c1, node *c2, node *c3, node *c4, node *c5, node *
             // The found node is the head of the list
             if (nextNode != NULL)
             {
+                // Set the head of the list to the next node
                 nextNode->prev = NULL;
             }
-            c1 = nextNode;
-            c2 = nextNode;
-            c3 = nextNode;
-            c4 = nextNode;
-            c5 = nextNode;
-            c6 = nextNode;
-            c7 = nextNode;
-            foundNode->next = NULL;
-            return foundNode;
+
+            // Set the list pointer to the head of the list after the found node
+            switch (cardLocation.location)
+            {
+            case '1':
+                *c1 = NULL;
+                break;
+            case '2':
+                *c2 = NULL;
+                break;
+            case '3':
+                *c3 = NULL;
+                break;
+            case '4':
+                *c4 = NULL;
+                break;
+            case '5':
+                *c5 = NULL;
+                break;
+            case '6':
+                *c6 = NULL;
+                break;
+            case '7':
+                *c7 = NULL;
+                break;
+            }
+
+            printf("\nList after removal: ");
+            printList(nextNode);
         }
         else
         {
             // The found node is not the head of the list
             foundNode->prev->next = NULL;
             foundNode->prev = NULL;
-            return foundNode;
+            printf("\nList after removal: ");
+            printList(nextNode);
         }
+
+        return foundNode;
     }
     else
     {
@@ -426,40 +771,42 @@ node *findAndRemoveCard(node *c1, node *c2, node *c3, node *c4, node *c5, node *
     }
 }
 
-void moveCard(node *c1, node *c2, node *c3, node *c4, node *c5, node *c6, node *c7, const char *cardString, const char *destString)
+void moveCard(node **c1, node **c2, node **c3, node **c4, node **c5, node **c6, node **c7, const char *cardString, const char *destString)
 {
     // Call findAndRemoveCard() to search for the card
     node *foundNode = findAndRemoveCard(c1, c2, c3, c4, c5, c6, c7, cardString);
     printf("\nfoundNode: %c%c\n", foundNode->card->rank, foundNode->card->suit);
-    printList(foundNode);
-    printList(c2);
     node *destNode = NULL;
     node *t = NULL;
 
     if (foundNode != NULL)
     {
+
         switch (destString[1])
         {
         case '1':
-            destNode = c1;
+            destNode = *c1;
+            printf("Boo\n");
             break;
         case '2':
-            destNode = c2;
+            destNode = *c2;
+            printf("Boo\n");
             break;
         case '3':
-            destNode = c3;
+            destNode = *c3;
+
             break;
         case '4':
-            destNode = c4;
+            destNode = *c4;
             break;
         case '5':
-            destNode = c5;
+            destNode = *c5;
             break;
         case '6':
-            destNode = c6;
+            destNode = *c6;
             break;
         case '7':
-            destNode = c7;
+            destNode = *c7;
             break;
         default:
             printf("\nInvalid destination\n");
@@ -469,11 +816,37 @@ void moveCard(node *c1, node *c2, node *c3, node *c4, node *c5, node *c6, node *
         // Insert the found node at the destination
         if (destNode == NULL)
         {
-            // Destination not found
-            printf("\nDestination not found\n");
+            // The destination list is empty
+            switch (destString[1])
+            {
+            case '1':
+                *c1 = foundNode;
+                break;
+            case '2':
+                *c2 = foundNode;
+                break;
+            case '3':
+                *c3 = foundNode;
+                break;
+            case '4':
+                *c4 = foundNode;
+                break;
+            case '5':
+                *c5 = foundNode;
+                break;
+            case '6':
+                *c6 = foundNode;
+                break;
+            case '7':
+                *c7 = foundNode;
+                break;
+            }
+            printf("\nCard moved\n");
         }
         else
         {
+
+            // Add the found node to the destination list
             t = destNode;
             while (t->next != NULL)
             {
@@ -482,7 +855,7 @@ void moveCard(node *c1, node *c2, node *c3, node *c4, node *c5, node *c6, node *
             t->next = foundNode;
             foundNode->prev = t;
             printf("\nCard moved\n");
-            printList(c4);
+            printList(destNode);
         }
     }
     else
@@ -491,20 +864,7 @@ void moveCard(node *c1, node *c2, node *c3, node *c4, node *c5, node *c6, node *
     }
 }
 
-
-// node *findCard(const char *cardString, node *headRef) {
-//     while (headRef != NULL) {
-//         if (headRef->card->rank == toupper(cardString[0]) &&
-//             headRef->card->suit == toupper(cardString[1])) {
-//             printf("headRef is found and is %c%c", headRef->card->rank, headRef->card->suit); //debugging
-//             return headRef;
-//         }
-//         headRef = headRef->next;
-//     }
-//     return NULL;
-// }
-
-node *findCard(const char *cardString, node *C1, node *C2, node *C3, node *C4, node *C5, node *C6, node *C7)
+cardLocation findCard(const char *cardString, node *C1, node *C2, node *C3, node *C4, node *C5, node *C6, node *C7)
 {
     node *temp;
 
@@ -535,7 +895,7 @@ node *findCard(const char *cardString, node *C1, node *C2, node *C3, node *C4, n
             temp = C7;
             break;
         default:
-            return NULL;
+            return (cardLocation){NULL, '\0'};
         }
 
         // Loop through nodes in column
@@ -545,14 +905,14 @@ node *findCard(const char *cardString, node *C1, node *C2, node *C3, node *C4, n
             if (temp->card->suit == toupper(cardString[1]) && temp->card->rank == toupper(cardString[0]))
             {
                 printf("temp is found and is %c%c", temp->card->rank, temp->card->suit); // debugging
-                return temp;
+                return (cardLocation){temp, i + '0'};                                    // Return the found node and the location of the card
             }
             temp = temp->next;
         }
     }
 
     // Card not found
-    return NULL;
+    return (cardLocation){NULL, '\0'};
 }
 
 void extractStrings(char *left, char *right)
@@ -570,8 +930,38 @@ void extractStrings(char *left, char *right)
     }
 }
 
-void printBoard(node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7)
+const char *parseCard(const struct node *cardNode)
 {
+    char *cardString = malloc(3);
+
+    if (cardNode == NULL || cardNode->card->revealed == false)
+    {
+        cardString[0] = '[';
+        cardString[1] = ']';
+        cardString[2] = '\0';
+    }
+    else
+    {
+        cardString[0] = cardNode->card->rank;
+        cardString[1] = cardNode->card->suit;
+        cardString[2] = '\0';
+    }
+
+    return cardString;
+}
+
+void printBoard(node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7, node **F1, node **F2, node **F3, node **F4)
+{
+
+    const char *F1Last = parseCard(getLastNode(*F1));
+    const char *F2Last = parseCard(getLastNode(*F2));
+    const char *F3Last = parseCard(getLastNode(*F3));
+    const char *F4Last = parseCard(getLastNode(*F4));
+
+    printf("F1\tF2\tF3\tF4\n");
+    printf("%s\t%s\t%s\t%s", F1Last, F2Last, F3Last, F4Last);
+    printf("\n");
+    printf("------------------------------------------------------------\n");
 
     node *columns[7] = {*C1, *C2, *C3, *C4, *C5, *C6, *C7};
     char *column_names[7] = {"C1", "C2", "C3", "C4", "C5", "C6", "C7"};
@@ -591,7 +981,7 @@ void printBoard(node **C1, node **C2, node **C3, node **C4, node **C5, node **C6
         printf("%s\t", column_names[i]);
     }
     printf("\n");
-    printf("------------------------------------------------------------\n");
+    printf("\n");
 
     // Print nodes in each column
     for (int i = 0; i < max_len; i++)
