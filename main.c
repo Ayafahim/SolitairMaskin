@@ -17,7 +17,6 @@ typedef struct card
 
 typedef struct node
 {
-
     struct card *card;
     struct node *prev;
     struct node *next;
@@ -278,7 +277,6 @@ void setAllCardsRevealed(node *head, bool revealed)
     }
 }
 
-
 struct card *createNewCard(char suit, char rank)
 {
     struct card *new_card = (struct card *)malloc(sizeof(struct card));
@@ -417,56 +415,52 @@ void createDeck(node **deck, char *filename)
     fclose(fp);
 }
 
-void setDeck(node **deck, node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7)
+void setDeck(node **deck, node **C1, node **C2, node **C3, node **C4, node **C5, node **C6, node **C7) 
 {
-    int i, j;
-    int pileSizes[] = {1, 6, 7, 8, 9, 10, 11};
-    int pileIndex = 0;
+    int i;
     int cardsDealt = 0;
     int currentColumn = 1;
 
-    for (i = 0; i < 7; i++)
+    while (*deck != NULL)
     {
-        for (j = 0; j < pileSizes[i]; j++)
+        node *node = removeFirstNode(deck);
+        switch (currentColumn)
         {
-            node *node = removeFirstNode(deck);
-            switch (currentColumn)
-            {
-            case 1:
-                insertNode(C1, node->card);
-                break;
-            case 2:
-                insertNode(C2, node->card);
-                break;
-            case 3:
-                insertNode(C3, node->card);
-                break;
-            case 4:
-                insertNode(C4, node->card);
-                break;
-            case 5:
-                insertNode(C5, node->card);
-                break;
-            case 6:
-                insertNode(C6, node->card);
-                break;
-            case 7:
-                insertNode(C7, node->card);
-                break;
-            default:
-                break;
-            }
-            cardsDealt++;
+        case 1:
+            insertNode(C1, node->card);
+            break;
+        case 2:
+            insertNode(C2, node->card);
+            break;
+        case 3:
+            insertNode(C3, node->card);
+            break;
+        case 4:
+            insertNode(C4, node->card);
+            break;
+        case 5:
+            insertNode(C5, node->card);
+            break;
+        case 6:
+            insertNode(C6, node->card);
+            break;
+        case 7:
+            insertNode(C7, node->card);
+            break;
+        default:
+            break;
+        }
+        cardsDealt++;
 
-            // Increment the current column and reset to 1 if it exceeds 7
-            currentColumn++;
-            if (currentColumn > 7)
-            {
-                currentColumn = 1;
-            }
+        // Increment the current column and reset to 1 if it exceeds 7
+        currentColumn++;
+        if (currentColumn > 7)
+        {
+            currentColumn = 1;
         }
     }
 }
+
 
 void printNode(const struct node *node)
 {
@@ -813,17 +807,12 @@ node *RemoveCards(node **c1, node **c2, node **c3, node **c4, node **c5, node **
                 *c7 = NULL;
                 break;
             }
-
-            printf("\nList after removal: ");
-            printList(nextNode);
         }
         else
         {
             // The found node is not the head of the list
             foundNode->prev->next = NULL;
             foundNode->prev = NULL;
-            printf("\nList after removal: ");
-            printList(nextNode);
         }
 
         return foundNode;
@@ -1141,8 +1130,7 @@ void moveCard(node **c1, node **c2, node **c3, node **c4, node **c5, node **c6, 
             }
             t->next = foundNode;
             foundNode->prev = t;
-            printf("\nCard moved\n");
-            printList(destNode);
+
         }
     }
     else
@@ -1184,7 +1172,6 @@ cardLocation findCard(const char *cardString, node *C1, node *C2, node *C3, node
         default:
             return (cardLocation){NULL, '\0'};
         }
-
         // Loop through nodes in column
         while (temp != NULL)
         {
@@ -1197,7 +1184,6 @@ cardLocation findCard(const char *cardString, node *C1, node *C2, node *C3, node
             temp = temp->next;
         }
     }
-
     // Card not found
     return (cardLocation){NULL, '\0'};
 }
